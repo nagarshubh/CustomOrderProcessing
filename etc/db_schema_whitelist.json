@@ -1,0 +1,23 @@
+{
+    "vendor_order_status_log": {
+        "column": {
+            "entity_id": true,
+            "order_increment_id": true,
+            "old_status": true,
+            "new_status": true,
+            "created_at": true
+        },
+        "index": {
+            "VENDOR_ORDER_STATUS_LOG_ORDER_INCREMENT_ID": true,
+            "VENDOR_ORDER_STATUS_LOG_CREATED_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "sales_shipment": {
+        "column": {
+            "custom_email_sent": true
+        }
+    }
+}

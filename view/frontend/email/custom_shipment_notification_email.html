@@ -1,0 +1,19 @@
+<!--@subject {{trans "Custom Shipment Notification Email"}} @-->
+<!--@vars {
+"var order.increment_id":"Order Increment Id",
+"var order.getCustomerFirstname()":"Customer First Name"
+} @-->
+<table>
+    <tr>
+        <td>
+            <h2>Order Shipped: {{var order.increment_id}}</h2>
+            <p>Dear {{var order.getCustomerFirstname()}},</p>
+            <p>Your order has been shipped! Below are the details:</p>
+            <strong>Order Number:</strong> {{var order.increment_id}}<br>
+            <br>
+            <p>You can track your shipment using the tracking details in your account.</p>
+            <p>Thank you for shopping with us!</p>
+            <p>Best Regards,<br>Store Support Team</p>
+        </td>
+    </tr>
+</table>

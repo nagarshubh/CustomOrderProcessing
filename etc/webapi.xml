@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <route url="/V1/orders/updateStatusByRequestInterface" method="POST">
+        <service class="Vendor\CustomOrderProcessing\Api\OrderStatusManagementInterface" method="updateOrderStatusByRequestInterface"/>
+        <resources>
+            <resource ref="Magento_Sales::sales_order"/>
+        </resources>
+    </route>
+    <route url="/V1/orders/updateStatus" method="POST">
+        <service class="Vendor\CustomOrderProcessing\Api\OrderStatusManagementInterface" method="updateOrderStatus"/>
+        <resources>
+            <resource ref="Magento_Sales::sales_order"/>
+        </resources>
+    </route>
+</routes>
