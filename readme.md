@@ -28,6 +28,11 @@ To send custom email on shipment save on local environment please run
 bin/magento queue:consumers:start vendor_customorderprocessing_order_status_email_consumer
 ```
 
+To Run unit tests
+```shell
+vendor/bin/phpunit -c dev/tests/unit/phpunit.xml.dist app/code/Vendor/CustomOrderProcessing/Test/Unit/Model/OrderStatusManagementTest.php
+```
+
 Logs related to module can be checked at file
 ```
 var/log/custom_order_processing.log
