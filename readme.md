@@ -19,12 +19,28 @@ This Magento 2 module enhances order processing workflow by providing:
 5. Run `bin/magento cache:clean`
 
 If module is not enabled enable the module by running:
+```shell
 `bin/magento module:enable Vendor_CustomOrderProcessing`
+```
+
+To send custom email on shipment save on local environment please run
+```shell
+bin/magento queue:consumers:start vendor_customorderprocessing_order_status_email_consumer
+```
+
+Logs related to module can be checked at file
+```
+var/log/custom_order_processing.log
+```
 
 ## API Usage
-Generate Admin Token:
+
+### Generate Admin Token:
+
 Endpoint: `{Your Base Url}/rest/V1/integration/admin/token`
+
 Method: POST
+
 Request Body:
 ```json
 {
@@ -35,10 +51,12 @@ Request Body:
 Response:
 "eyJraWQiOiIxIiwiYWxnIjoiSFMyNTYifQ.eyJ1aWQiOjEsInV0eXBpZCI6MiwiaWF0IjoxNzQzMjQyOTM3LCJleHAiOjE3NDMyNDY1Mzd9.PSGrG867y7Okp3sFy_mQwmL01yQmYnVIhV4QWhknY_U"
 
-Update order Status API:
+### Update order Status API:
 
 Endpoint: `{Your Base Url}/rest/V1/orders/updateStatus`
+
 Method: POST
+
 Authentication: Bearer Token
 
 Request Body:
@@ -49,10 +67,12 @@ Request Body:
 }
 ```
 
-Same API request with more restricted body params which could improve performace becuase of request interface
+### Same API request with more restricted body params which could improve performace becuase of request interface
 
 Endpoint: `{Your Base Url}/rest/V1/orders/updateStatusByRequestInterface`
+
 Method: POST
+
 Authentication: Bearer Token
 
 Request Body:

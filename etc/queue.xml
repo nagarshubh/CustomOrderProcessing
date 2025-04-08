@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/queue.xsd">
+    <broker topic="vendor_customorderprocessing.order.status.email" type="db">
+        <queue name="vendor_customorderprocessing_order_status_email" consumer="vendor_customorderprocessing_order_status_email_consumer"/>
+    </broker>
+</config>

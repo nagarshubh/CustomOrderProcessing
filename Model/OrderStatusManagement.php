@@ -9,6 +9,7 @@ use Vendor\CustomOrderProcessing\Model\OrderManagement;
 use Vendor\CustomOrderProcessing\Api\OrderStatusManagementInterface;
 use Vendor\CustomOrderProcessing\Api\Data\OrderStatusUpdateInterface;
 use Vendor\CustomOrderProcessing\Api\Data\OrderStatusUpdateResultInterfaceFactory;
+use Magento\Sales\Model\ResourceModel\Order\Status\Collection as StatusCollection;
 
 class OrderStatusManagement implements OrderStatusManagementInterface
 {
@@ -23,15 +24,22 @@ class OrderStatusManagement implements OrderStatusManagementInterface
     protected $resultFactory;
 
     /**
+     * @var StatusCollection
+     */
+    protected $statusCollection;
+
+    /**
      * @param OrderManagement $orderManagement
      * @param OrderStatusUpdateResultInterfaceFactory $resultFactory
      */
     public function __construct(
         OrderManagement $orderManagement,
-        OrderStatusUpdateResultInterfaceFactory $resultFactory
+        OrderStatusUpdateResultInterfaceFactory $resultFactory,
+        StatusCollection $statusCollection
     ) {
         $this->orderManagement = $orderManagement;
         $this->resultFactory = $resultFactory;
+        $this->statusCollection = $statusCollection;
     }
 
     /**
@@ -42,8 +50,16 @@ class OrderStatusManagement implements OrderStatusManagementInterface
         $result = $this->resultFactory->create();
         
         try {
+
             if (empty($increment_id) || empty($status)) {
                 throw new InputException(__('Increment ID and status are required.'));
+            }
+
+            $statusCollection = $this->statusCollection->toOptionArray();
+            $allStatuses = array_column($statusCollection, 'value');
+            
+            if (!in_array($status, $allStatuses)) {
+                throw new InputException(__("Invalid status value: {$status}"));
             }
 
             $order = $this->orderManagement->getOrderByIncrementId($increment_id);
@@ -110,6 +126,13 @@ class OrderStatusManagement implements OrderStatusManagementInterface
             
             if (empty($incrementId) || empty($status)) {
                 throw new InputException(__('Increment ID and status are required.'));
+            }
+
+            $statusCollection = $this->statusCollection->toOptionArray();
+            $allStatuses = array_column($statusCollection, 'value');
+            
+            if (!in_array($status, $allStatuses)) {
+                throw new InputException(__("Invalid status value: {$status}"));
             }
 
             $order = $this->orderManagement->getOrderByIncrementId($incrementId);

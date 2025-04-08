@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
+    <consumer name="vendor_customorderprocessing_order_status_email_consumer" 
+              queue="vendor_customorderprocessing_order_status_email"
+              connection="db"
+              consumerInstance="Magento\Framework\MessageQueue\Consumer"
+              handler="Vendor\CustomOrderProcessing\Model\Queue\EmailSender::process"
+              maxMessages="1000"/>
+</config>

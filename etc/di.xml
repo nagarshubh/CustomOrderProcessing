@@ -5,4 +5,28 @@
     <preference for="Vendor\CustomOrderProcessing\Api\Data\OrderStatusUpdateResultInterface" type="Vendor\CustomOrderProcessing\Model\Data\OrderStatusUpdateResult" />
     <preference for="Vendor\CustomOrderProcessing\Api\Data\OrderStatusUpdateLogInterface" type="Vendor\CustomOrderProcessing\Model\Data\OrderStatusUpdateLog" />
     <preference for="Vendor\CustomOrderProcessing\Api\OrderStatusLogManagementInterface" type="Vendor\CustomOrderProcessing\Model\OrderStatusLogManagement" />
+
+    <!-- For Queue -->
+    <type name="Magento\Framework\MessageQueue\Consumer\Config\Reader">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="vendor.custom_order_processing.email.queue" xsi:type="string">Vendor\CustomOrderProcessing\Model\Queue\EmailSender</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- For custom logging -->
+    <type name="Vendor\CustomOrderProcessing\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Vendor\CustomOrderProcessing\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">customLogHandler</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Vendor\CustomOrderProcessing\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

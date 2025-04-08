@@ -4,13 +4,11 @@ namespace Vendor\CustomOrderProcessing\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer;
 use Magento\Sales\Model\Order;
-use Psr\Log\LoggerInterface;
-use Vendor\CustomOrderProcessing\Model\OrderStatusLogFactory;
-use Magento\Framework\Mail\Template\TransportBuilder;
+use Vendor\CustomOrderProcessing\Logger\Logger as LoggerInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Magento\Framework\Translate\Inline\StateInterface;
 use Vendor\CustomOrderProcessing\Api\Data\OrderStatusUpdateLogInterface;
 use Vendor\CustomOrderProcessing\Api\OrderStatusLogManagementInterface;
+use Magento\Framework\MessageQueue\PublisherInterface;
 
 class OrderStatusChangeObserver implements ObserverInterface
 {
@@ -19,17 +17,9 @@ class OrderStatusChangeObserver implements ObserverInterface
      */
     protected $logger;
     /**
-     * @var TransportBuilder
-     */
-    protected $transportBuilder;
-    /**
      * @var StoreManagerInterface
      */
     protected $storeManager;
-    /**
-     * @var StateInterface
-     */
-    protected $inlineTranslation;
     /**
      * @var OrderStatusUpdateLogInterface
      */
@@ -38,29 +28,30 @@ class OrderStatusChangeObserver implements ObserverInterface
      * @var OrderStatusLogManagementInterface
      */
     protected $orderStatusLogMngmnt;
+    /**
+     * @var PublisherInterface
+     */
+    protected $publisher;
 
     /**
      * @param LoggerInterface $logger
-     * @param TransportBuilder $transportBuilder
      * @param StoreManagerInterface $storeManager
-     * @param StateInterface $inlineTranslation
      * @param OrderStatusUpdateLogInterface $orderStatusUpdateLog
      * @param OrderStatusLogManagementInterface $orderStatusLogMngmnt
+     * @param PublisherInterface $publisher
      */
     public function __construct(
         LoggerInterface $logger,
-        TransportBuilder $transportBuilder,
         StoreManagerInterface $storeManager,
-        StateInterface $inlineTranslation,
         OrderStatusUpdateLogInterface $orderStatusUpdateLog,
-        OrderStatusLogManagementInterface $orderStatusLogMngmnt
+        OrderStatusLogManagementInterface $orderStatusLogMngmnt,
+        PublisherInterface $publisher
     ) {
         $this->logger = $logger;
-        $this->transportBuilder = $transportBuilder;
         $this->storeManager = $storeManager;
-        $this->inlineTranslation = $inlineTranslation;
         $this->orderStatusUpdateLog = $orderStatusUpdateLog;
         $this->orderStatusLogMngmnt = $orderStatusLogMngmnt;
+        $this->publisher = $publisher;
     }
 
     /**
@@ -105,6 +96,7 @@ class OrderStatusChangeObserver implements ObserverInterface
     private function logOrderStatusChange($orderId, $oldStatus, $newStatus)
     {
         try {
+            $this->logger->info(__("Changing order status of order #$orderId from $oldStatus to $newStatus"));
             $orderStatusLog = $this->orderStatusUpdateLog;
             $orderStatusLog->setOrderIncrementId($orderId)
                 ->setOldStatus($oldStatus)
@@ -125,27 +117,13 @@ class OrderStatusChangeObserver implements ObserverInterface
     private function sendShipmentNotificationEmail(Order $order)
     {
         try {
-            $this->inlineTranslation->suspend();
-            $store = $order->getStoreId();
-            
-            $transport = $this->transportBuilder
-                ->setTemplateIdentifier('custom_shipment_notification_email_template')
-                ->setTemplateOptions([
-                    'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                    'store' => $store
-                ])
-                ->setTemplateVars(['order' => $order])
-                ->setFrom([
-                    'email' => 'vendor.support@example.com',
-                    'name' => 'Vendor Support'
-                ])
-                ->addTo($order->getCustomerEmail())
-                ->getTransport();
-
-            $transport->sendMessage();
-            $this->inlineTranslation->resume();
+            $this->publisher->publish('vendor_customorderprocessing.order.status.email', $order->getEntityId());
+            $this->logger->info("Order status change for order {$order->getIncrementId()} added to email queue");
         } catch (\Exception $e) {
-            $this->logger->error(__('Error sending shipment notification email: %1', $e->getMessage()));
+            $this->logger->error("Failed to queue order status email: " . $e->getMessage(), [
+                'order_id' => $order->getIncrementId(),
+                'exception' => $e
+            ]);
         }
     }
 }
